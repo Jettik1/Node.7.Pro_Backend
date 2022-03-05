@@ -11,17 +11,21 @@ export class UsersService {
     private roleService: RolesService) {} // чтобы использовать надо связать RolesService с модулем User
 
     async createUser(dto: CreateUserDto) {
-        try {
-            const user = await this.userRepository.create(dto);
-            console.log(user)
-            return user;
-        } catch (e) {
-            throw e;
-        }
+        const user = await this.userRepository.create(dto);
+        const role = await this.roleService.getRoleByValue("USER");
+        await user.$set('roles', [role.id]);
+        user.roles = [role]
+        return user;
     }
 
     async getAllUsers() {
         const users = await this.userRepository.findAll({include: {all: true}})
         return users;
+    }
+
+
+    async getUsersByEmail(email: string) {
+        const user = await this.userRepository.findOne({where:{email}, include: {all: true}})
+        return user;
     }
 }
