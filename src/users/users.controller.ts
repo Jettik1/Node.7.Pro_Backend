@@ -1,6 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/roles-auth.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { AddRoleDto } from 'src/dto/add-role.dto';
+import { BanUserDto } from 'src/dto/ban-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { User } from './users.model';
 import { UsersService } from './users.service';
 
@@ -24,8 +29,31 @@ export class UsersController {
 
     @ApiOperation({summary: 'Получение пользователей'})
     @ApiResponse({status: 200, type: [User]})
+    //@UseGuards(JwtAuthGuard)
+    @Roles("ADMIN") // наш декоратор
+    @UseGuards(RolesGuard)
     @Get()
     getAll() {
         return this.usersService.getAllUsers();
+    }
+
+    @ApiOperation({summary: 'Выдача ролей'})
+    @ApiResponse({status: 200})
+    //@UseGuards(JwtAuthGuard)
+    @Roles("ADMIN") // наш декоратор
+    @UseGuards(RolesGuard)
+    @Post("/role")
+    addRole(@Body() dto: AddRoleDto) {
+        return this.usersService.addRole(dto);
+    }
+
+    @ApiOperation({summary: 'Забанить пользователя'})
+    @ApiResponse({status: 200})
+    //@UseGuards(JwtAuthGuard)
+    @Roles("ADMIN") // наш декоратор
+    @UseGuards(RolesGuard)
+    @Post("/ban")
+    ban(@Body() dto: BanUserDto) {
+        return this.usersService.ban(dto);
     }
 }
