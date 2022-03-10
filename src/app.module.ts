@@ -11,6 +11,9 @@ import { UserRoles } from "./roles/user-roles.model";
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { Post } from "./posts/posts.model";
+import { FilesModule } from './files/files.module';
+import * as path from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
     controllers: [AppController],
@@ -18,6 +21,9 @@ import { Post } from "./posts/posts.model";
     imports: [
         ConfigModule.forRoot({
             envFilePath: `.${process.env.NODE_ENV}.env`
+        }),
+        ServeStaticModule.forRoot({
+          rootPath: path.resolve(__dirname, 'static'), // чтобы получить доступ к файлам по пути в ссылке
         }),
         SequelizeModule.forRoot({
           dialect: 'postgres',
@@ -33,6 +39,7 @@ import { Post } from "./posts/posts.model";
         RolesModule,
         AuthModule,
         PostsModule,
+        FilesModule,
       ],
 })
 export class AppModule{
